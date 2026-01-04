@@ -9,8 +9,10 @@ WORKDIR /app
 RUN pip install --upgrade pip
 
 # Install Python dependencies
+# Install numpy first to avoid binary incompatibility issues with thinc
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir numpy==1.23.5 && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy model installation script
 COPY install_model.py /app/
