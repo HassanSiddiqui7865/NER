@@ -13,10 +13,13 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install MED7 vector-based (large) model from Hugging Face
-# Download and rename the wheel file to avoid version parsing issues
-RUN python -c "import urllib.request; urllib.request.urlretrieve('https://huggingface.co/kormilitzin/en_core_med7_lg/resolve/main/en_core_med7_lg-any-py3-none-any.whl', '/tmp/en_core_med7_lg.whl')" && \
-    pip install /tmp/en_core_med7_lg.whl && \
-    rm /tmp/en_core_med7_lg.whl
+# Download wheel, extract, and install to site-packages
+RUN python -c "import urllib.request, zipfile, os, shutil, site; \
+    urllib.request.urlretrieve('https://huggingface.co/kormilitzin/en_core_med7_lg/resolve/main/en_core_med7_lg-any-py3-none-any.whl', '/tmp/model.whl'); \
+    site_packages = site.getsitepackages()[0]; \
+    with zipfile.ZipFile('/tmp/model.whl', 'r') as z: \
+        z.extractall(site_packages); \
+    os.remove('/tmp/model.whl')"
 
 # Copy application code
 COPY app.py /app/
